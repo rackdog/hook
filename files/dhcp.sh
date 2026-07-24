@@ -7,6 +7,8 @@
 # false: run the dhcp client as a service
 set -x
 
+rtc_initialized=false
+
 run_dhcp_client() {
 	one_shot="$1"
 	al="e*"
@@ -25,10 +27,12 @@ run_dhcp_client() {
 		# use busybox's ntpd to set the time after getting an IP address; don't fail
 		echo "sleep 1 second before calling ntpd; date: '$(date)'" && sleep 1
 		if ! /usr/sbin/ntpd -n -q -dd -p pool.ntp.org; then
-			echo "ntpd call failed; setting time manually and retrying"
-			# set system time to the date of the dhcpd binary file
-			# this should recover from ntpd failures due to time being too far off
-			date -s "$(stat -c %y /sbin/dhcpcd | cut -d'.' -f1)" || true
+			echo "ntpd call failed; retrying"
+			if [ "$rtc_initialized" = "false" ]; then
+				# Set a safe baseline when no RTC is available and ntpd
+				# refuses to make one very large clock jump.
+				date -s "$(stat -c %y /sbin/dhcpcd | cut -d'.' -f1)" || true
+			fi
 			tries=1	# retry up to 5 times
 			while [ $tries -le 5 ]; do
 				echo "waiting 1 second before retrying ntpd call; try #$tries ; date is now: '$(date)'"
@@ -49,6 +53,17 @@ run_dhcp_client() {
 	fi
 
 }
+
+# The kernel does not always initialize its system clock from a valid RTC.
+# Do this before the static-network early exit so both network paths get it.
+if [ "$1" = "true" ]; then
+	if /sbin/hwclock --hctosys --utc; then
+		rtc_initialized=true
+		echo "system clock initialized from RTC; date: '$(date)'"
+	else
+		echo "RTC unavailable; NTP will initialize the system clock"
+	fi
+fi
 
 if [ -f /run/network/interfaces ] || [ -f /var/run/network/interfaces ]; then
 	echo "the /run/network/interfaces file or /var/run/network/interfaces file exists, so static IP's are in use. not running the dhcp client."

@@ -76,10 +76,14 @@ onboot:
     capabilities:
       - all
     binds.add:
+      - /dev:/dev
       - /var/lib/dhcpcd:/var/lib/dhcpcd
       - /run:/run
       - /etc/ip/dhcp.sh:/etc/ip/dhcp.sh
       - /dhcpcd.conf:/dhcpcd.conf
+    devices:
+      - path: all
+        type: c
     runtime:
       mkdir:
         - /var/lib/dhcpcd
