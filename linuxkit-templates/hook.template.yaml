@@ -77,6 +77,7 @@ onboot:
       - all
     binds.add:
       - /dev:/dev
+      - /sys:/sys
       - /var/lib/dhcpcd:/var/lib/dhcpcd
       - /run:/run
       - /etc/ip/dhcp.sh:/etc/ip/dhcp.sh

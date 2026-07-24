@@ -9,6 +9,33 @@ set -x
 
 rtc_initialized=false
 
+disable_intel_fw_lldp() {
+	for interface_path in /sys/class/net/*; do
+		driver=$(readlink "${interface_path}/device/driver" 2>/dev/null) || continue
+		driver="${driver##*/}"
+		case "$driver" in
+			i40e)
+				lldp_flag="disable-fw-lldp"
+				lldp_value="on"
+				;;
+			ice)
+				lldp_flag="fw-lldp-agent"
+				lldp_value="off"
+				;;
+			*)
+				continue
+				;;
+		esac
+
+		interface="${interface_path##*/}"
+		if /usr/sbin/ethtool --set-priv-flags "$interface" "$lldp_flag" "$lldp_value"; then
+			echo "disabled firmware LLDP on $interface ($driver)"
+		else
+			echo "could not disable firmware LLDP on $interface ($driver); continuing"
+		fi
+	done
+}
+
 run_dhcp_client() {
 	one_shot="$1"
 	al="e*"
@@ -57,6 +84,9 @@ run_dhcp_client() {
 # The kernel does not always initialize its system clock from a valid RTC.
 # Do this before the static-network early exit so both network paths get it.
 if [ "$1" = "true" ]; then
+	# Intel firmware LLDP can prevent i40e and ice interfaces from coming up.
+	disable_intel_fw_lldp
+
 	if /sbin/hwclock --hctosys --utc; then
 		rtc_initialized=true
 		echo "system clock initialized from RTC; date: '$(date)'"

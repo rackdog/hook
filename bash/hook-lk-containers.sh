@@ -12,6 +12,7 @@ function build_all_hook_linuxkit_containers() {
 	build_hook_linuxkit_container hook-udev "HOOK_CONTAINER_UDEV_IMAGE" "${EXPORT_LK_CONTAINERS}" "${EXPORT_LK_CONTAINERS_DIR}"
 	build_hook_linuxkit_container hook-acpid "HOOK_CONTAINER_ACPID_IMAGE" "${EXPORT_LK_CONTAINERS}" "${EXPORT_LK_CONTAINERS_DIR}"
 	build_hook_linuxkit_container hook-containerd "HOOK_CONTAINER_CONTAINERD_IMAGE" "${EXPORT_LK_CONTAINERS}" "${EXPORT_LK_CONTAINERS_DIR}"
+	build_hook_linuxkit_container hook-dhcpcd "HOOK_CONTAINER_LINUXKIT_DHCPCD_IMAGE" "${EXPORT_LK_CONTAINERS}" "${EXPORT_LK_CONTAINERS_DIR}"
 	build_hook_linuxkit_container hook-runc "HOOK_CONTAINER_RUNC_IMAGE" "${EXPORT_LK_CONTAINERS}" "${EXPORT_LK_CONTAINERS_DIR}"
 	build_hook_linuxkit_container hook-embedded "HOOK_CONTAINER_EMBEDDED_IMAGE" "${EXPORT_LK_CONTAINERS}" "${EXPORT_LK_CONTAINERS_DIR}"
 
@@ -26,7 +27,6 @@ function build_all_hook_linuxkit_containers() {
 	linuxkit_proxy_images+=(["sysctl"]="linuxkit/sysctl:97e8bb067cd9cef1514531bb692f27263ac6d626")
 	linuxkit_proxy_images+=(["sysfs"]="linuxkit/sysfs:6d5bd933762f6b216744c711c6e876756cee9600")
 	linuxkit_proxy_images+=(["modprobe"]="linuxkit/modprobe:4248cdc3494779010e7e7488fc17b6fd45b73aeb")
-	linuxkit_proxy_images+=(["dhcpcd"]="linuxkit/dhcpcd:b87e9ececac55a65eaa592f4dd8b4e0c3009afdb")
 	linuxkit_proxy_images+=(["openntpd"]="linuxkit/openntpd:2508f1d040441457a0b3e75744878afdf61bc473")
 	linuxkit_proxy_images+=(["getty"]="linuxkit/getty:a86d74c8f89be8956330c3b115b0b1f2e09ef6e0")
 	linuxkit_proxy_images+=(["sshd"]="linuxkit/sshd:08e5d4a46603eff485d5d1b14001cc932a530858")
